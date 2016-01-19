@@ -121,7 +121,7 @@ def parse_description(description,data):
         elif (re.search('(?i)cloud', description)):
             sky = "Cloudy..."
         elif (re.search('(?i)wind', description)):
-            if (re.search('(?)cold', description)):
+            if (re.search('(?i)cold', description)):
                 sky = "Cold & windy..."
             else:
                 sky = "Windy..."
