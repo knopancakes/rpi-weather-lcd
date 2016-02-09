@@ -108,6 +108,7 @@ def updateWeatherReport():
     global weather_file
     global get_weather
     global weather_mode
+    global wupdate_delay
 
     got_weather = 0
   
@@ -120,7 +121,7 @@ def updateWeatherReport():
         if not iwaddr and not inaddr:
             print "Network down, attempting to reset connection"
             subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
-
+            wupdate_delay = 600
         else:
             print "Something went wrong when trying to fetch weather"
         
