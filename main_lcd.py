@@ -22,7 +22,7 @@ get_weather = "sh /home/pi/workspace/lcd/get_weather.sh 02135"
 weather_file = "/home/pi/workspace/lcd/weather_report.xml"
 weather_mode = 3
 # startup param
-
+wupdate_delay = 600
 
 def main():
 
@@ -30,6 +30,12 @@ def main():
     display_mode = 0
 
     while True:
+        
+        if( wupdate_delay < 600):
+            wupdate_delay = wupdate_delay + 1
+        else:
+            wupdate_delay = 0;
+            updateWeatherReport()
         
         if(display_mode == SYS_INFO):
             # raspberry pi info
@@ -44,7 +50,7 @@ def main():
             clock(1.5)
             display_mode = SYS_INFO
         elif(display_mode == WEATHER_REPORT):
-            weatherReport(1.5)
+            displayWeather(1.5)
             display_mode = CLOCK
 
         #here want to check for user input to change modes
@@ -98,53 +104,65 @@ def sysInfo(delay):
         lcd_string("I can't see!", LCD_LINE1)
         lcd_string("Please help me.",LCD_LINE2)
 
-    
-def weatherReport(delay):
+def updateWeatherReport():
     global weather_file
     global get_weather
     global weather_mode
 
-    got_weather = 1
-
+    got_weather = 0
+  
     try:
         ret = run_cmd(get_weather)
     except:
-        print "Something went wrong when trying to fetch weather"
-        got_weather = 0
-        pass
+        iwaddr = run_cmd(get_wlan)
+        inaddr = run_cmd(get_eth0)
 
-    if(got_weather):
-        try:
-            if(weather_mode > 2):
-                temp_now, sky_now = weather.getCurrent(weather_file) 
-                lcd_string("Currently", LCD_LINE_1)
-                lcd_string( temp_now + ' ' + sky_now, LCD_LINE_2)
-                sleep(delay)
-            if(weather_mode > 0):
-                low, high, sky = weather.getToday(weather_file)        
-                lcd_string("Today's Report", LCD_LINE_1)
-                lcd_string('Low: ' + low, LCD_LINE_2)
-                sleep(delay)
-                lcd_string("Today's Report", LCD_LINE_1)
-                lcd_string('High: ' + high, LCD_LINE_2)
-                sleep(delay)
-                lcd_string("Today's Report", LCD_LINE_1)
-                lcd_string(sky, LCD_LINE_2)
-                sleep(delay)
-            if(weather_mode > 1):
-                low, high, sky = weather.getTomorrow(weather_file)
-                lcd_string("Morrow's Report", LCD_LINE_1)
-                lcd_string('Low: ' + low, LCD_LINE_2)
-                sleep(delay)
-                lcd_string("Morrow's Report", LCD_LINE_1)
-                lcd_string('High: ' + high, LCD_LINE_2)
-                sleep(delay)
-                lcd_string("Morrow's Report", LCD_LINE_1)
-                lcd_string(sky, LCD_LINE_2)
-                sleep(delay)
-        except:
-            print "Something went wrong while parsing weather report"
-            pass
+        if not iwaddr and not inaddr:
+            print "Network down, attempting to reset connection"
+            subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
+
+        else:
+            print "Something went wrong when trying to fetch weather"
+        
+        got_weather = 0
+
+    got_weather = 1
+    
+    return got_weather
+
+
+def displayWeather(delay):
+    try:
+        if(weather_mode > 2):
+            temp_now, sky_now = weather.getCurrent(weather_file) 
+            lcd_string("Currently", LCD_LINE_1)
+            lcd_string( temp_now + ' ' + sky_now, LCD_LINE_2)
+            sleep(delay)
+        if(weather_mode > 0):
+            low, high, sky = weather.getToday(weather_file)        
+            lcd_string("Today's Report", LCD_LINE_1)
+            lcd_string('Low: ' + low, LCD_LINE_2)
+            sleep(delay)
+            lcd_string("Today's Report", LCD_LINE_1)
+            lcd_string('High: ' + high, LCD_LINE_2)
+            sleep(delay)
+            lcd_string("Today's Report", LCD_LINE_1)
+            lcd_string(sky, LCD_LINE_2)
+            sleep(delay)
+        if(weather_mode > 1):
+            low, high, sky = weather.getTomorrow(weather_file)
+            lcd_string("Morrow's Report", LCD_LINE_1)
+            lcd_string('Low: ' + low, LCD_LINE_2)
+            sleep(delay)
+            lcd_string("Morrow's Report", LCD_LINE_1)
+            lcd_string('High: ' + high, LCD_LINE_2)
+            sleep(delay)
+            lcd_string("Morrow's Report", LCD_LINE_1)
+            lcd_string(sky, LCD_LINE_2)
+            sleep(delay)
+    except:
+        print "Something went wrong while parsing weather report"
+        pass
 
 
 
