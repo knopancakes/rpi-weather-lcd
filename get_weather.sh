@@ -6,7 +6,7 @@
 #(c) Michael Seiler 2007
 
 METRIC=0 #Should be 0 or 1; 0 for F, 1 for C
-OUTFILE=/home/pi/workspace/lcd/weather_report.xml
+OUTFILE=/home/pi/rpi-weather-lcd/weather_report.xml
 
 if [ -z $1 ]; then
     echo
