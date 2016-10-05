@@ -18,8 +18,8 @@ SYS_INFO = 3
 # terminal commands
 get_wlan = "ip addr show wlan0 | grep inet | awk '{print $2}' | cut -d/ -f1"
 get_eth0 = "ip addr show eth0 | grep inet | awk '{print $2}' | cut -d/ -f1"
-get_weather = "sh /home/pi/workspace/lcd/get_weather.sh 02135"
-weather_file = "/home/pi/workspace/lcd/weather_report.xml"
+get_weather = "sh /home/pi/rpi-weather-lcd/get_weather.sh 02135"
+weather_file = "/home/pi/rpi-weather-lcd/weather_report.xml"
 weather_mode = 3
 # startup param
 wupdate_delay = 600
@@ -28,7 +28,8 @@ def main():
 
     lcd_init()
     display_mode = 0
-
+    global wupdate_delay
+    
     while True:
         
         if( wupdate_delay < 600):
